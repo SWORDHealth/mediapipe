@@ -118,8 +118,5 @@ node {
   calculator: "RendererSubgraph"
   input_stream: "IMAGE:throttled_input_video"
   input_stream: "LANDMARKS:hand_landmarks"
-  input_stream: "NORM_RECT:hand_rect"
-  input_stream: "DETECTIONS:palm_detections"
-  input_stream: "HANDEDNESS:handedness"
   output_stream: "IMAGE:output_video"
 }

@@ -5,7 +5,7 @@
 
 # Images coming into and out of the graph.
 input_stream: "input_video"
-output_stream: "output_video"
+output_stream: "out_video"
 
 # Throttles the images flowing downstream for flow control. It passes through
 # the very first incoming image unaltered, and waits for HandDetectionSubgraph
@@ -69,5 +69,5 @@ node {
   input_stream: "IMAGE_GPU:throttled_input_video"
   input_stream: "detection_render_data"
   input_stream: "rect_render_data"
-  output_stream: "IMAGE_GPU:output_video"
+  output_stream: "IMAGE_GPU:out_video"
 }
