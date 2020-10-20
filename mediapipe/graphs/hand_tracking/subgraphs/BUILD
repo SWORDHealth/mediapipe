@@ -218,10 +218,8 @@ mediapipe_simple_subgraph(
     register_as = "RendererSubgraph",
     deps = [
         "//mediapipe/calculators/util:annotation_overlay_calculator",
-        "//mediapipe/calculators/util:detections_to_render_data_calculator",
-        "//mediapipe/calculators/util:labels_to_render_data_calculator",
         "//mediapipe/calculators/util:landmarks_to_render_data_calculator",
-        "//mediapipe/calculators/util:rect_to_render_data_calculator",
+        "//mediapipe/calculators/core:split_normalized_landmark_list_calculator",
     ],
 )
 

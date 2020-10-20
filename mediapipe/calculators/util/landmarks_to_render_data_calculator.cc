@@ -33,6 +33,7 @@ constexpr char kNormLandmarksTag[] = "NORM_LANDMARKS";
 constexpr char kRenderScaleTag[] = "RENDER_SCALE";
 constexpr char kRenderDataTag[] = "RENDER_DATA";
 constexpr char kLandmarkLabel[] = "KEYPOINT";
+constexpr char kColorTag[] = "COLOR";
 
 inline void SetColor(RenderAnnotation* annotation, const Color& color) {
   annotation->mutable_color()->set_r(color.r());
@@ -192,6 +193,9 @@ RenderAnnotation* AddPointRenderData(const Color& landmark_color,
   if (cc->Inputs().HasTag(kRenderScaleTag)) {
     cc->Inputs().Tag(kRenderScaleTag).Set<float>();
   }
+  if (cc->Inputs().HasTag(kColorTag)) {
+      cc->Inputs().Tag(kColorTag).Set<int[]>();
+    }
   cc->Outputs().Tag(kRenderDataTag).Set<RenderData>();
   return ::mediapipe::OkStatus();
 }
@@ -254,11 +258,24 @@ RenderAnnotation* AddPointRenderData(const Color& landmark_color,
           options_.presence_threshold(), thickness, /*normalized=*/false, z_min,
           z_max, render_data.get());
     } else {
-      AddConnections<LandmarkList, Landmark>(
+      if (cc->Inputs().HasTag(kColorTag)) {
+        const auto& colorArray = cc->Inputs().Tag(kColorTag).Get<int[]>();
+        Color color;
+        color.set_r(colorArray[0]);
+        color.set_g(colorArray[1]);
+        color.set_b(colorArray[2]);
+        AddConnections<LandmarkList, Landmark>(
+          landmarks, landmark_connections_, options_.utilize_visibility(),
+                    options_.visibility_threshold(), options_.utilize_presence(),
+                    options_.presence_threshold(), color, thickness,
+                    /*normalized=*/false, render_data.get());
+      } else {
+       AddConnections<LandmarkList, Landmark>(
           landmarks, landmark_connections_, options_.utilize_visibility(),
           options_.visibility_threshold(), options_.utilize_presence(),
           options_.presence_threshold(), options_.connection_color(), thickness,
           /*normalized=*/false, render_data.get());
+      }
     }
     for (int i = 0; i < landmarks.landmark_size(); ++i) {
       const Landmark& landmark = landmarks.landmark(i);
@@ -303,11 +320,24 @@ RenderAnnotation* AddPointRenderData(const Color& landmark_color,
           options_.presence_threshold(), thickness, /*normalized=*/true, z_min,
           z_max, render_data.get());
     } else {
-      AddConnections<NormalizedLandmarkList, NormalizedLandmark>(
-          landmarks, landmark_connections_, options_.utilize_visibility(),
-          options_.visibility_threshold(), options_.utilize_presence(),
-          options_.presence_threshold(), options_.connection_color(), thickness,
-          /*normalized=*/true, render_data.get());
+        if (cc->Inputs().HasTag(kColorTag)) {
+            const auto& colorArray = cc->Inputs().Tag(kColorTag).Get<int[]>();
+                    Color color;
+                    color.set_r(colorArray[0]);
+                    color.set_g(colorArray[1]);
+                    color.set_b(colorArray[2]);
+            AddConnections<NormalizedLandmarkList, NormalizedLandmark>(
+                      landmarks, landmark_connections_, options_.utilize_visibility(),
+                      options_.visibility_threshold(), options_.utilize_presence(),
+                      options_.presence_threshold(), color, thickness,
+                      /*normalized=*/true, render_data.get());
+        } else {
+            AddConnections<NormalizedLandmarkList, NormalizedLandmark>(
+                      landmarks, landmark_connections_, options_.utilize_visibility(),
+                      options_.visibility_threshold(), options_.utilize_presence(),
+                      options_.presence_threshold(), options_.connection_color(), thickness,
+                      /*normalized=*/true, render_data.get());
+        }
     }
     for (int i = 0; i < landmarks.landmark_size(); ++i) {
       const NormalizedLandmark& landmark = landmarks.landmark(i);

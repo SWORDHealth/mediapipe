@@ -77,6 +77,29 @@ mediapipe_binary_graph(
 )
 
 cc_library(
+    name = "full_upper_calculators",
+    deps = [
+        "//mediapipe/calculators/core:flow_limiter_calculator",
+        "//mediapipe/calculators/core:gate_calculator",
+        "//mediapipe/calculators/core:merge_calculator",
+        "//mediapipe/calculators/core:previous_loopback_calculator",
+        "//mediapipe/calculators/image:image_properties_calculator",
+        "//mediapipe/graphs/pose_tracking/calculators:landmarks_smoothing_calculator",
+        "//mediapipe/graphs/hand_tracking/subgraphs:hand_detection_gpu",
+        "//mediapipe/graphs/hand_tracking/subgraphs:hand_landmark_gpu",
+        "//mediapipe/graphs/hand_tracking/subgraphs:renderer_gpu",
+        "//mediapipe/modules/pose_landmark:pose_landmark_upper_body_gpu"
+    ],
+)
+
+mediapipe_binary_graph(
+    name = "full_upper_tracking_mobile_binary_graph",
+    graph = "full_upper_tracking_mobile.pbtxt",
+    output_name = "full_upper_tracking_mobile.binarypb",
+    deps = [":full_upper_calculators"],
+)
+
+cc_library(
     name = "multi_hand_desktop_tflite_calculators",
     deps = [
         ":desktop_offline_calculators",

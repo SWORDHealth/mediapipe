@@ -3,48 +3,16 @@
 type: "RendererSubgraph"
 
 input_stream: "IMAGE:input_image"
-input_stream: "DETECTIONS:detections"
+input_stream: "COLOR:color"
 input_stream: "LANDMARKS:landmarks"
-input_stream: "NORM_RECT:rect"
-input_stream: "HANDEDNESS:handedness"
 output_stream: "IMAGE:output_image"
 
-# Converts classification to drawing primitives for annotation overlay.
-node {
-  calculator: "LabelsToRenderDataCalculator"
-  input_stream: "CLASSIFICATIONS:handedness"
-  output_stream: "RENDER_DATA:handedness_render_data"
-  node_options: {
-    [type.googleapis.com/mediapipe.LabelsToRenderDataCalculatorOptions]: {
-      color { r: 255 g: 0 b: 0 }
-      thickness: 10.0
-      font_height_px: 50
-      horizontal_offset_px: 200
-      vertical_offset_px: 100
-
-      max_num_labels: 1
-      location: TOP_LEFT
-    }
-  }
-}
-
-# Converts detections to drawing primitives for annotation overlay.
-node {
-  calculator: "DetectionsToRenderDataCalculator"
-  input_stream: "DETECTIONS:detections"
-  output_stream: "RENDER_DATA:detection_render_data"
-  node_options: {
-    [type.googleapis.com/mediapipe.DetectionsToRenderDataCalculatorOptions] {
-      thickness: 4.0
-      color { r: 0 g: 255 b: 0 }
-    }
-  }
-}
 
 # Converts landmarks to drawing primitives for annotation overlay.
 node {
   calculator: "LandmarksToRenderDataCalculator"
   input_stream: "NORM_LANDMARKS:landmarks"
+  input_stream: "COLOR:color"
   output_stream: "RENDER_DATA:landmark_render_data"
   node_options: {
     [type.googleapis.com/mediapipe.LandmarksToRenderDataCalculatorOptions] {
@@ -90,23 +58,10 @@ node {
       landmark_connections: 19
       landmark_connections: 19
       landmark_connections: 20
-      landmark_color { r: 255 g: 0 b: 0 }
-      connection_color { r: 0 g: 255 b: 0 }
+      landmark_color { r: 0 g: 0 b: 0 }
+      connection_color { r: 255 g: 255 b: 255 }
       thickness: 4.0
-    }
-  }
-}
-
-# Converts normalized rects to drawing primitives for annotation overlay.
-node {
-  calculator: "RectToRenderDataCalculator"
-  input_stream: "NORM_RECT:rect"
-  output_stream: "RENDER_DATA:rect_render_data"
-  node_options: {
-    [type.googleapis.com/mediapipe.RectToRenderDataCalculatorOptions] {
-      filled: false
-      color { r: 255 g: 0 b: 0 }
-      thickness: 4.0
+      visualize_landmark_depth: false
     }
   }
 }
@@ -115,9 +70,6 @@ node {
 node {
   calculator: "AnnotationOverlayCalculator"
   input_stream: "IMAGE_GPU:input_image"
-  input_stream: "detection_render_data"
   input_stream: "landmark_render_data"
-  input_stream: "handedness_render_data"
-  input_stream: "rect_render_data"
   output_stream: "IMAGE_GPU:output_image"
 }

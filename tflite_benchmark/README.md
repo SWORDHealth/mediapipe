@@ -1,0 +1,1 @@
+Refer to https://www.tensorflow.org/lite/performance/measurement for info on how to use these apk to profile tflite models on android
