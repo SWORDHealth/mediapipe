@@ -3,8 +3,8 @@
 type: "RendererSubgraph"
 
 input_stream: "IMAGE:input_image"
-input_stream: "HAND_LANDMARKS:landmarks"
-input_stream: "BODY_LANDMARKS:pose_landmarks"
+input_stream: "COLOR:color"
+input_stream: "LANDMARKS:landmarks"
 output_stream: "IMAGE:output_image"
 
 
@@ -12,6 +12,7 @@ output_stream: "IMAGE:output_image"
 node {
   calculator: "LandmarksToRenderDataCalculator"
   input_stream: "NORM_LANDMARKS:landmarks"
+  input_stream: "COLOR:color"
   output_stream: "RENDER_DATA:landmark_render_data"
   node_options: {
     [type.googleapis.com/mediapipe.LandmarksToRenderDataCalculatorOptions] {
@@ -57,66 +58,10 @@ node {
       landmark_connections: 19
       landmark_connections: 19
       landmark_connections: 20
-      landmark_color { r: 255 g: 255 b: 255 }
-      connection_color { r: 0 g: 0 b: 0 }
+      landmark_color { r: 0 g: 0 b: 0 }
+      connection_color { r: 255 g: 255 b: 255 }
       thickness: 4.0
       visualize_landmark_depth: false
-    }
-  }
-}
-
-# upper body
-node {
-  calculator: "ImagePropertiesCalculator"
-  input_stream: "IMAGE_GPU:input_image"
-  output_stream: "SIZE:image_size"
-}
-
-node {
-  calculator: "SplitNormalizedLandmarkListCalculator"
-  input_stream: "pose_landmarks"
-  output_stream: "visible_pose_landmarks"
-  node_options: {
-    [type.googleapis.com/mediapipe.SplitVectorCalculatorOptions] {
-      ranges: { begin: 11 end: 17 }
-      ranges: { begin: 23 end: 25 }
-
-      combine_outputs: true
-    }
-  }
-}
-
-
-# Converts landmarks to drawing primitives for annotation overlay.
-node {
-  calculator: "LandmarksToRenderDataCalculator"
-  input_stream: "NORM_LANDMARKS:visible_pose_landmarks"
-  output_stream: "RENDER_DATA:landmarks_render_data"
-  node_options: {
-    [type.googleapis.com/mediapipe.LandmarksToRenderDataCalculatorOptions] {
-      landmark_connections: 0
-      landmark_connections: 1
-      landmark_connections: 0
-      landmark_connections: 2
-      landmark_connections: 2
-      landmark_connections: 4
-      landmark_connections: 1
-      landmark_connections: 3
-      landmark_connections: 3
-      landmark_connections: 5
-      landmark_connections: 0
-      landmark_connections: 6
-      landmark_connections: 1
-      landmark_connections: 7
-      landmark_connections: 6
-      landmark_connections: 7
-
-      landmark_color { r: 255 g: 255 b: 255 }
-      connection_color { r: 255 g: 255 b: 255 }
-      thickness: 3.0
-      visualize_landmark_depth: false
-      utilize_visibility: true
-      visibility_threshold: 0.1
     }
   }
 }
@@ -126,6 +71,5 @@ node {
   calculator: "AnnotationOverlayCalculator"
   input_stream: "IMAGE_GPU:input_image"
   input_stream: "landmark_render_data"
-  input_stream: "landmarks_render_data"
   output_stream: "IMAGE_GPU:output_image"
 }

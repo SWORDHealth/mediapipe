@@ -5,7 +5,9 @@
 
 # Images coming into and out of the graph.
 input_stream: "input_video"
+input_stream: "color"
 output_stream: "output_video"
+output_stream: "handedness"
 
 # Throttles the images flowing downstream for flow control. It passes through
 # the very first incoming image unaltered, and waits for downstream nodes
@@ -117,6 +119,7 @@ node {
 node {
   calculator: "RendererSubgraph"
   input_stream: "IMAGE:throttled_input_video"
+  input_stream: "COLOR:color"
   input_stream: "LANDMARKS:hand_landmarks"
   output_stream: "IMAGE:output_video"
 }
