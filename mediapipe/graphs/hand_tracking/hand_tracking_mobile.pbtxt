@@ -3,11 +3,13 @@
 # mediapipe/examples/android/src/java/com/mediapipe/apps/handtrackinggpu and
 # mediapipe/examples/ios/handtrackinggpu.
 
-# Images coming into and out of the graph.
+# Full graph input and output streams
 input_stream: "input_video"
 input_stream: "color"
-output_stream: "output_video"
+
 output_stream: "handedness"
+output_stream: "hand_landmarks"
+output_stream: "output_video"
 
 # Throttles the images flowing downstream for flow control. It passes through
 # the very first incoming image unaltered, and waits for downstream nodes
@@ -22,7 +24,7 @@ output_stream: "handedness"
 node {
   calculator: "FlowLimiterCalculator"
   input_stream: "input_video"
-  input_stream: "FINISHED:hand_rect"
+  input_stream: "FINISHED:output_video"
   input_stream_info: {
     tag_index: "FINISHED"
     back_edge: true
