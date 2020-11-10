@@ -216,6 +216,7 @@ public class CameraXPreviewHelper extends CameraHelper {
 
   @Override
   public Size computeDisplaySizeFromViewSize(Size viewSize) {
+    frameSize = getOptimalViewSize(viewSize);
     // Camera target size is computed already, so just return the capture frame size.
     return frameSize;
   }
