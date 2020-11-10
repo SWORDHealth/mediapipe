@@ -135,14 +135,7 @@ public class CameraXPreviewHelper extends CameraHelper {
     ListenableFuture<ProcessCameraProvider> cameraProviderFuture =
         ProcessCameraProvider.getInstance(context);
 
-    targetSize = (targetSize == null ? TARGET_SIZE : targetSize);
-    // According to CameraX documentation
-    // (https://developer.android.com/training/camerax/configuration#specify-resolution):
-    // "Express the resolution Size in the coordinate frame after rotating the supported sizes by
-    // the target rotation."
-    // Since we only support portrait orientation, we unconditionally transpose width and height.
-    Size rotatedSize =
-        new Size(/* width= */ targetSize.getHeight(), /* height= */ targetSize.getWidth());
+    Size size = (targetSize == null ? TARGET_SIZE : targetSize);
 
     cameraProviderFuture.addListener(
         () -> {
@@ -156,7 +149,7 @@ public class CameraXPreviewHelper extends CameraHelper {
             return;
           }
 
-          preview = new Preview.Builder().setTargetResolution(rotatedSize).build();
+          preview = new Preview.Builder().setTargetResolution(size).build();
 
           CameraSelector cameraSelector =
               cameraFacing == CameraHelper.CameraFacing.FRONT
