@@ -62,6 +62,7 @@ cc_library(
         "//mediapipe/calculators/core:flow_limiter_calculator",
         "//mediapipe/calculators/core:gate_calculator",
         "//mediapipe/calculators/core:merge_calculator",
+        "//mediapipe/calculators/core:packet_cloner_calculator",
         "//mediapipe/calculators/core:previous_loopback_calculator",
         "//mediapipe/graphs/hand_tracking/subgraphs:hand_detection_gpu",
         "//mediapipe/graphs/hand_tracking/subgraphs:hand_landmark_gpu",
