@@ -9,9 +9,6 @@ input_stream: "color"
 
 output_stream: "handedness"
 output_stream: "hand_landmarks"
-
-output_stream: "input_video"
-output_stream: "throttled_input_video"
 output_stream: "output_video"
 
 # Throttles the images flowing downstream for flow control. It passes through
@@ -27,7 +24,7 @@ output_stream: "output_video"
 node {
   calculator: "FlowLimiterCalculator"
   input_stream: "input_video"
-  input_stream: "FINISHED:render_video"
+  input_stream: "FINISHED:output_video"
   input_stream_info: {
     tag_index: "FINISHED"
     back_edge: true
@@ -111,7 +108,7 @@ node {
 # HandDetectionSubgraph (because HandLandmarkSubgraph could not identify hand
 # presence in the previous image). Otherwise, the latter is selected, which is
 # never empty because HandLandmarkSubgraphs processes all images (that went
-# through FlowLimiterCalculator).
+# through FlowLimiterCaculator).
 node {
   calculator: "MergeCalculator"
   input_stream: "hand_rect_from_palm_detections"
@@ -126,28 +123,5 @@ node {
   input_stream: "IMAGE:throttled_input_video"
   input_stream: "COLOR:color"
   input_stream: "LANDMARKS:hand_landmarks"
-  output_stream: "IMAGE:render_video"
-}
-
-# This calculator will be ticked whenever a input_video frame is available
-# and will return the last available landmark rendered image. If none exists
-# an empty packet is still sent. This is important because it enables the
-# MergeCalculator to receive its input while we don't have rendered images.
-# If the cloned_render_video is unavailable, the MergeCalculator will return
-# input_video as the output
-node {
-  calculator: "PacketClonerCalculator"
-  input_stream: "render_video"
-  input_stream: "input_video"
-  input_stream_handler {
-     input_stream_handler: "ImmediateInputStreamHandler"
-  }
-  output_stream: "cloned_render_video"
-}
-
-node {
-  calculator: "MergeCalculator"
-  input_stream: "cloned_render_video"
-  input_stream: "input_video"
-  output_stream: "output_video"
+  output_stream: "IMAGE:output_video"
 }
