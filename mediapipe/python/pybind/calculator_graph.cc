@@ -31,6 +31,10 @@
 namespace mediapipe {
 namespace python {
 
+// A mutex to guard the output stream observer python callback function.
+// Only one python callback can run at once.
+absl::Mutex callback_mutex;
+
 template <typename T>
 T ParseProto(const py::object& proto_object) {
   T proto;
@@ -280,7 +284,7 @@ void CalculatorGraphSubmodule(pybind11::module* module) {
     graph.close()
 
 )doc",
-      py::arg("input_side_packets") = (py::dict){});
+      py::arg("input_side_packets") = py::dict());
 
   calculator_graph.def(
       "wait_until_done",
@@ -372,7 +376,7 @@ void CalculatorGraphSubmodule(pybind11::module* module) {
   calculator_graph.def(
       "get_combined_error_message",
       [](CalculatorGraph* self) {
-        ::mediapipe::Status error_status;
+        mediapipe::Status error_status;
         if (self->GetCombinedErrors(&error_status) && !error_status.ok()) {
           return error_status.ToString();
         }
@@ -393,6 +397,8 @@ void CalculatorGraphSubmodule(pybind11::module* module) {
          pybind11::function callback_fn) {
         RaisePyErrorIfNotOk(self->ObserveOutputStream(
             stream_name, [callback_fn, stream_name](const Packet& packet) {
+              // Acquire a mutex so that only one callback_fn can run at once.
+              absl::MutexLock lock(&callback_mutex);
               callback_fn(stream_name, packet);
               return mediapipe::OkStatus();
             }));
