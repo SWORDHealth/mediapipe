@@ -17,6 +17,7 @@ package com.google.mediapipe.glutil;
 import android.graphics.SurfaceTexture;
 import android.opengl.GLES11Ext;
 import android.opengl.GLES20;
+import android.opengl.Matrix;
 import android.view.Surface;
 import java.nio.FloatBuffer;
 import java.util.HashMap;
@@ -115,6 +116,10 @@ public class ExternalTextureRenderer {
     ShaderUtil.checkGlError("glActiveTexture");
     surfaceTexture.updateTexImage(); // This implicitly binds the texture.
     surfaceTexture.getTransformMatrix(textureTransformMatrix);
+
+    Matrix.rotateM(textureTransformMatrix, 0, 270, 0, 0, 1);
+    Matrix.translateM(textureTransformMatrix, 0, -1, 0, 0);
+
     GLES20.glTexParameteri(
         GLES11Ext.GL_TEXTURE_EXTERNAL_OES, GLES20.GL_TEXTURE_MIN_FILTER, GLES20.GL_LINEAR);
     GLES20.glTexParameteri(

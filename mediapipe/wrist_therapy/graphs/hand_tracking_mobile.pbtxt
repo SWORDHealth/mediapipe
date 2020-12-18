@@ -1,0 +1,83 @@
+# MediaPipe graph that performs multi-hand tracking with TensorFlow Lite on GPU.
+# Used in the examples in
+# mediapipe/examples/android/src/java/com/mediapipe/apps/handtrackinggpu.
+
+# GPU image. (GpuBuffer)
+input_stream: "input_video"
+
+# RGB Color of the landmarks (int32 array)
+input_stream: "color"
+
+# GPU image - throttled video without landmarks. (GpuBuffer)
+output_stream: "throttled_input_video"
+
+# GPU image - video with the rendering of the landmarks. (GpuBuffer)
+output_stream: "output_video"
+
+# Collection of detected/predicted landmarks for the hand (NormalizedLandmarkList)
+output_stream: "hand_landmarks"
+
+# Handedness of the detected hand
+output_stream: "handedness"
+
+# Whether a hand is present
+output_stream: "hand_presence"
+
+# Setting num_hands constant as 1
+node {
+  name: "ConstantSidePacketCalculator"
+  calculator: "ConstantSidePacketCalculator"
+  output_side_packet: "PACKET:num_hands"
+  options: {
+    [mediapipe.ConstantSidePacketCalculatorOptions.ext]: {
+      packet { int_value: 1 }
+    }
+  }
+}
+
+# Throttles the images flowing downstream for flow control. It passes through
+# the very first incoming image unaltered, and waits for downstream nodes
+# (calculators and subgraphs) in the graph to finish their tasks before it
+# passes through another image. All images that come in while waiting are
+# dropped, limiting the number of in-flight images in most part of the graph to
+# 1. This prevents the downstream nodes from queuing up incoming images and data
+# excessively, which leads to increased latency and memory usage, unwanted in
+# real-time mobile applications. It also eliminates unnecessarily computation,
+# e.g., the output produced by a node may get dropped downstream if the
+# subsequent nodes are still busy processing previous inputs.
+
+node {
+  calculator: "FlowLimiterCalculator"
+  input_stream: "input_video"
+  input_stream: "FINISHED:output_video"
+  input_stream_info: {
+    tag_index: "FINISHED"
+    back_edge: true
+  }
+  output_stream: "throttled_input_video"
+}
+
+# Detects/tracks hand landmarks.
+node {
+  calculator: "HandLandmarkTrackingGpu"
+  input_stream: "IMAGE:throttled_input_video"
+  input_side_packet: "NUM_HANDS:num_hands"
+  output_stream: "LANDMARKS:hand_landmarks"
+  output_stream: "HANDEDNESS:handedness"
+}
+
+node: {
+ calculator: "PacketPresenceCalculator"
+ input_stream: "PACKET:hand_landmarks"
+ output_stream: "PRESENCE:hand_presence"
+}
+
+# Subgraph that renders annotations and overlays them on top of the input
+# images (see hand_renderer_gpu.pbtxt).
+node {
+  calculator: "HandRendererSubgraph"
+  input_stream: "IMAGE:throttled_input_video"
+  input_stream: "COLOR:color"
+  input_stream: "LANDMARKS:hand_landmarks"
+  output_stream: "IMAGE:output_video"
+}
