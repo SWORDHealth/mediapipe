@@ -117,8 +117,25 @@ public class ExternalTextureRenderer {
     surfaceTexture.updateTexImage(); // This implicitly binds the texture.
     surfaceTexture.getTransformMatrix(textureTransformMatrix);
 
-    Matrix.rotateM(textureTransformMatrix, 0, 270, 0, 0, 1);
-    Matrix.translateM(textureTransformMatrix, 0, -1, 0, 0);
+    switch (rotation) {
+      case 0:
+        break;
+      case 90:
+        Matrix.rotateM(textureTransformMatrix, 0, 90, 0, 0, 1);
+        Matrix.translateM(textureTransformMatrix, 0, 0, -1, 0);
+        break;
+      case 180:
+        Matrix.rotateM(textureTransformMatrix, 0, 180, 0, 0, 1);
+        Matrix.translateM(textureTransformMatrix, 0, -1, -1, 0);
+        break;
+      case 270:
+        Matrix.rotateM(textureTransformMatrix, 0, 270, 0, 0, 1);
+        Matrix.translateM(textureTransformMatrix, 0, -1, 0, 0);
+        break;
+      default:
+        //unknown
+        break;
+    }
 
     GLES20.glTexParameteri(
         GLES11Ext.GL_TEXTURE_EXTERNAL_OES, GLES20.GL_TEXTURE_MIN_FILTER, GLES20.GL_LINEAR);
